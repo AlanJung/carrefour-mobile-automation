@@ -46,7 +46,8 @@ validate:
     - node -e "JSON.parse(require('fs').readFileSync('data/forms.json'))"
     - echo "✓ Validação concluída com sucesso."
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
+    # $CI_COMMIT_BRANCH cobre push E execução manual (web); evita pipeline sem jobs
+    - if: '$CI_COMMIT_BRANCH'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 # ─── Testes em dispositivos reais via BrowserStack (opcional) ────────────────────
