@@ -1,20 +1,24 @@
 const BasePage = require('./base.page');
 
 class WebviewPage extends BasePage {
-    // A tela de Webview não expõe um content-desc próprio no nível nativo
-    // — verificamos pelo contexto e pelo estado das abas de navegação
+    // A tela de WebView não expõe um content-desc próprio no nível nativo;
+    // validamos pela aba selecionada e pelos contextos disponíveis.
 
-    async isScreenDisplayed() {
-        // Verifica que a aba Webview está selecionada
+    async isDisplayed() {
         const el = await $('~Webview');
         const selected = await el.getAttribute('selected');
         return selected === 'true' || selected === true;
     }
 
-    async switchToWebContext() {
-        await driver.pause(3000); // aguarda WebView carregar
+    // Retorna a lista de contextos (NATIVE_APP, WEBVIEW_*) como strings
+    async getAvailableContexts() {
         const contexts = await driver.getContexts();
-        const webCtx = contexts.find(c => c.toString().includes('WEBVIEW'));
+        return contexts.map((c) => c.toString());
+    }
+
+    async switchToWebContext() {
+        await driver.pause(3000); // aguarda a WebView carregar
+        const webCtx = (await this.getAvailableContexts()).find((c) => c.includes('WEBVIEW'));
         if (webCtx) {
             await driver.switchContext(webCtx);
         }

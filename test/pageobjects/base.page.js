@@ -50,26 +50,6 @@ class BasePage {
             // isKeyboardShown/pressKeyCode pode não estar disponível — segue o fluxo
         }
     }
-
-    async swipeUp() {
-        const { width, height } = await driver.getWindowSize();
-        await driver.action('pointer', { parameters: { pointerType: 'touch' } })
-            .move({ x: Math.round(width / 2), y: Math.round(height * 0.8) })
-            .down()
-            .move({ x: Math.round(width / 2), y: Math.round(height * 0.2), duration: 600 })
-            .up()
-            .perform();
-    }
-
-    async swipeDown() {
-        const { width, height } = await driver.getWindowSize();
-        await driver.action('pointer', { parameters: { pointerType: 'touch' } })
-            .move({ x: Math.round(width / 2), y: Math.round(height * 0.2) })
-            .down()
-            .move({ x: Math.round(width / 2), y: Math.round(height * 0.8), duration: 600 })
-            .up()
-            .perform();
-    }
 }
 
 module.exports = BasePage;

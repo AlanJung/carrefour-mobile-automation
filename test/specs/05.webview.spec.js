@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const homePage    = require('../pageobjects/home.page');
+const webviewPage = require('../pageobjects/webview.page');
 
 describe('WebView', () => {
     // Cenário 12 — Acessa tela de WebView e verifica contexto nativo
@@ -8,16 +9,14 @@ describe('WebView', () => {
         await driver.pause(2000);
 
         // Aba WebView deve estar selecionada
-        const isSelected = await homePage.isTabSelected('webview');
-        expect(isSelected, 'Aba WebView deve estar selecionada').to.be.true;
+        const displayed = await webviewPage.isDisplayed();
+        expect(displayed, 'Aba WebView deve estar selecionada').to.be.true;
 
         // Deve existir ao menos o contexto NATIVE_APP
-        const contexts = await driver.getContexts();
-        const contextNames = contexts.map(c => c.toString());
-        expect(contextNames).to.include('NATIVE_APP');
+        const contextNames = await webviewPage.getAvailableContexts();
+        expect(contextNames, 'Deve existir o contexto NATIVE_APP').to.include('NATIVE_APP');
 
-        // Verifica que há mais de um contexto (NATIVE_APP + WEBVIEW_*)
-        // Nota: requer Chromedriver compatível para trocar para o contexto web
+        // Nota: trocar para o contexto web requer Chromedriver compatível
         console.log('Contextos disponíveis:', contextNames.join(', '));
         expect(contextNames.length).to.be.at.least(1);
     });

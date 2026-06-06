@@ -55,3 +55,37 @@ describe('Login', () => {
         expect(errorText).to.include('Please enter');
     });
 });
+
+describe('Cadastro (Sign up)', () => {
+    beforeEach(async () => {
+        await loginPage.resetApp();
+        await homePage.navigateTo('login');
+    });
+
+    // Cenário 13 — Cadastro com dados válidos (data-driven)
+    users.signUpUsers.forEach((user) => {
+        it(`[C13] Cadastro bem-sucedido com: ${user.email}`, async () => {
+            await loginPage.signUp(user.email, user.password, user.password);
+
+            // O app exibe alerta nativo "Signed Up!\nYou successfully signed up!"
+            const alertDisplayed = await loginPage.isAlertDisplayed();
+            expect(alertDisplayed, 'Deve exibir alerta de cadastro').to.be.true;
+
+            const alertText = await loginPage.getAlertMessage();
+            expect(alertText).to.include('Signed Up!');
+
+            await loginPage.dismissAlert();
+        });
+    });
+
+    // Cenário 14 — Cadastro com senha curta → erro inline de validação
+    it('[C14] Cadastro com senha curta exibe erro de validação', async () => {
+        await loginPage.signUp('cadastro@teste.com', '123', '123');
+
+        const inlineErrorShown = await loginPage.isInlineErrorDisplayed();
+        expect(inlineErrorShown, 'Deve exibir erro inline para senha curta').to.be.true;
+
+        const errorText = await loginPage.getInlineErrorMessage();
+        expect(errorText).to.include('Please enter at least 8 characters');
+    });
+});

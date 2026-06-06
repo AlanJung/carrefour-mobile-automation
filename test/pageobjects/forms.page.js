@@ -49,27 +49,6 @@ class FormsPage extends BasePage {
         await option.click();
         await driver.pause(500);
     }
-
-    async getDropdownValue() {
-        // Lê o texto atual exibido no Dropdown
-        const el = await $('~Dropdown');
-        return el.getText();
-    }
-
-    async clickActiveButton() {
-        await this.click('~button-Active');
-        await driver.pause(400);
-    }
-
-    async clickInactiveButton() {
-        await this.click('~button-Inactive');
-        await driver.pause(400);
-    }
-
-    async getActiveButtonText() {
-        const el = await $('~button-Active');
-        return el.getText();
-    }
 }
 
 module.exports = new FormsPage();

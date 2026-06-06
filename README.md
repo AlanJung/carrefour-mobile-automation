@@ -148,7 +148,7 @@ Carrefour-mobile-automation/
 │   │   ├── drag.page.js
 │   │   └── webview.page.js
 │   └── specs/
-│       ├── 01.login.spec.js        # Cenários C01–C03
+│       ├── 01.login.spec.js        # Login (C01–C03) e Cadastro (C13–C14)
 │       ├── 02.forms.spec.js        # Cenários C04–C08
 │       ├── 03.navigation.spec.js   # Cenário NAV
 │       ├── 04.swipe.spec.js        # Cenários C09–C11
@@ -172,6 +172,8 @@ Carrefour-mobile-automation/
 | C01 | Login com credenciais válidas (alerta "Success") | 01.login.spec.js | Data-driven |
 | C02 | Login inválido — e-mail sem @ e senha curta (erros inline) | 01.login.spec.js | Data-driven |
 | C03 | Login com campos vazios — validação inline | 01.login.spec.js | Funcional |
+| C13 | Cadastro com dados válidos (alerta "Signed Up!") | 01.login.spec.js | Data-driven |
+| C14 | Cadastro com senha curta — erro de validação inline | 01.login.spec.js | Funcional |
 | C04 | Navegação para a tela de Forms | 02.forms.spec.js | Funcional |
 | C05 | Preenchimento do campo de texto e verificação do resultado | 02.forms.spec.js | Data-driven |
 | C06 | Switch toggle — verificação de mudança de estado | 02.forms.spec.js | Funcional |
@@ -183,7 +185,7 @@ Carrefour-mobile-automation/
 | C11 | Drag & Drop dos 9 itens para os alvos corretos | 04.swipe.spec.js | Funcional |
 | C12 | Abertura de WebView e identificação de contextos | 05.webview.spec.js | Funcional |
 
-> **Total:** 16 testes (incluindo os datasets data-driven), todos executados com sucesso no emulador Android 14.
+> **Total:** 18 testes (incluindo os datasets data-driven), todos executados com sucesso no emulador Android 14. Cobrem **login, cadastro, navegação, preenchimento de formulários, gestos e verificação de mensagens de erro**.
 
 ---
 
@@ -214,7 +216,7 @@ npm run test:ios
 - **macOS + Xcode + Simulador iOS** (o iOS não roda no Windows — limitação da Apple)
 - O build de simulador do app: `ios.simulator.wdio.native.app.*.zip` (descompacte o `.app` em `apps/ios/`) — disponível nas [releases do native-demo-app](https://github.com/webdriverio/native-demo-app/releases)
 
-Os **Page Objects são cross-platform**: o native-demo-app usa os mesmos `accessibility id` no Android e no iOS, então os mesmos 16 cenários rodam no iOS com pouca ou nenhuma alteração — basta apontar o `app` no `wdio.ios.conf.js`.
+Os **Page Objects são cross-platform**: o native-demo-app usa os mesmos `accessibility id` no Android e no iOS, então os mesmos 18 testes rodam no iOS com pouca ou nenhuma alteração — basta apontar o `app` no `wdio.ios.conf.js`.
 
 ### BrowserStack
 
@@ -276,10 +278,10 @@ A integração com BrowserStack permite executar os testes em **dispositivos rea
 
 ### Resultado validado (Google Pixel 6 / Android 12)
 
-Os 16 cenários foram executados em dispositivo real no BrowserStack:
+Os 18 testes foram executados em dispositivo real no BrowserStack:
 
-- ✅ **15 cenários passando** (login, forms, navegação, swipe horizontal, drag & drop, webview)
-- ⏭️ **1 cenário pulado** — C10 (robô escondido): o reveal é um easter-egg de *parallax*
+- ✅ **17 testes passando** (login, cadastro, forms, navegação, swipe horizontal, drag & drop, webview)
+- ⏭️ **1 teste pulado** — C10 (robô escondido): o reveal é um easter-egg de *parallax*
   sensível à resolução, que dispara de forma confiável no emulador mas não no device real.
   Por isso é **pulado automaticamente no BrowserStack** (com motivo documentado) e mantido
   como assert firme no emulador.
@@ -301,7 +303,7 @@ O arquivo `.gitlab-ci.yml` configura dois stages:
 
 Os testes mobile exigem um **emulador Android (com KVM)** ou **simulador iOS (macOS)**. Os **runners compartilhados do GitLab.com não suportam virtualização aninhada (KVM)**, então não conseguem subir o emulador.
 
-Por isso o pipeline executa um **stage de validação** (sempre verde), garantindo a integridade do código a cada push. A execução real dos 16 cenários acontece:
+Por isso o pipeline executa um **stage de validação** (sempre verde), garantindo a integridade do código a cada push. A execução real dos 18 testes acontece:
 
 - **Localmente**, em emulador Android: `npm run test:android`
 - **Na nuvem**, via BrowserStack: `npm run test:browserstack:android` (job `device-tests`)

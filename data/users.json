@@ -19,5 +19,12 @@
       "expectedError": "Please enter at least 8 characters",
       "description": "Senha com menos de 8 caracteres"
     }
+  ],
+  "signUpUsers": [
+    {
+      "email": "novo.usuario@teste.com",
+      "password": "Senha1234!",
+      "description": "Cadastro com dados válidos"
+    }
   ]
 }

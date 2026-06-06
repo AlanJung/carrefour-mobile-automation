@@ -7,7 +7,7 @@
 # portanto não conseguem rodar o emulador Android diretamente.
 #
 # Por isso este pipeline executa um STAGE DE VALIDAÇÃO (instala dependências, valida
-# a sintaxe do código e dos arquivos de dados). A execução real dos 16 cenários é
+# a sintaxe do código e dos arquivos de dados). A execução real dos 18 testes é
 # feita:
 #   • localmente, em emulador Android (npm run test:android), ou
 #   • na nuvem via BrowserStack (npm run test:browserstack:android) — job opcional
