@@ -1,0 +1,23 @@
+{
+  "validUsers": [
+    {
+      "email": "test@webdriver.io",
+      "password": "Test1234!",
+      "description": "Credenciais válidas do native-demo-app"
+    }
+  ],
+  "invalidUsers": [
+    {
+      "email": "naoemail",
+      "password": "Test1234!",
+      "expectedError": "Please enter a valid email address",
+      "description": "Email sem @ — formato inválido"
+    },
+    {
+      "email": "test@webdriver.io",
+      "password": "123",
+      "expectedError": "Please enter at least 8 characters",
+      "description": "Senha com menos de 8 caracteres"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "inputs": [
+    { "text": "Olá WebdriverIO", "description": "Texto simples em português" },
+    { "text": "Carrefour 2025",  "description": "Texto com número" },
+    { "text": "Test@123!",       "description": "Texto com caracteres especiais" }
+  ]
+}

@@ -1,0 +1,83 @@
+stages:
+  - setup
+  - test
+  - report
+
+variables:
+  ANDROID_COMPILE_SDK: "34"
+  ANDROID_BUILD_TOOLS: "34.0.0"
+  ANDROID_SDK_TOOLS: "9477386"
+  NODE_VERSION: "20"
+
+# ─── Testes Android (emulador via Docker) ────────────────────────────────────
+android-tests:
+  stage: test
+  image: node:20-bullseye
+  services:
+    - name: budtmo/docker-android:emulator_14.0
+      alias: android-emulator
+  variables:
+    APPIUM_HOST: "android-emulator"
+    APPIUM_PORT: "4723"
+    ANDROID_SERIAL: "emulator-5554"
+  before_script:
+    - npm ci
+    - npx appium driver install uiautomator2 || true
+  script:
+    - npm run test:android -- --hostname $APPIUM_HOST --port $APPIUM_PORT
+  artifacts:
+    name: "android-test-results-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - .allure-results/
+      - reports/screenshots/
+    when: always
+    expire_in: 7 days
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+# ─── Testes BrowserStack Android (opcional) ──────────────────────────────────
+browserstack-android:
+  stage: test
+  image: node:20-bullseye
+  before_script:
+    - npm ci
+    # Faz upload do APK para o BrowserStack e captura o app_url
+    - |
+      APP_URL=$(curl -u "$BROWSERSTACK_USER:$BROWSERSTACK_KEY" \
+        -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
+        -F "file=@apps/android/app-release.apk" \
+        | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).app_url))")
+      export BROWSERSTACK_APP_ID=$APP_URL
+  script:
+    - npm run test:browserstack:android
+  artifacts:
+    paths:
+      - .allure-results/
+      - reports/screenshots/
+    when: always
+    expire_in: 7 days
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $BROWSERSTACK_USER != null'
+  allow_failure: true
+
+# ─── Geração do Allure Report ─────────────────────────────────────────────────
+allure-report:
+  stage: report
+  image: node:20-bullseye
+  needs:
+    - job: android-tests
+      artifacts: true
+  before_script:
+    - npm install -g allure-commandline --save-dev
+  script:
+    - allure generate .allure-results --clean -o allure-report
+  artifacts:
+    name: "allure-report-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - allure-report/
+    expose_as: "Allure Report"
+    expire_in: 30 days
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'

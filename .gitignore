@@ -1,0 +1,9 @@
+node_modules/
+reports/
+allure-report/
+.allure-results/
+apps/android/*.apk
+apps/ios/*.app
+apps/ios/*.ipa
+.env
+*.log
