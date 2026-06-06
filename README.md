@@ -266,27 +266,32 @@ O arquivo `.gitlab-ci.yml` configura dois stages:
 
 | Stage | Job | Descrição |
 |---|---|---|
-| `test` | `android-tests` | Roda os testes em emulador Android via Docker |
-| `test` | `browserstack-android` | Roda no BrowserStack (apenas na branch `main`) |
-| `report` | `allure-report` | Gera o relatório Allure e publica como artefato |
+| `validate` | `validate` | Instala dependências e valida a sintaxe de configs, Page Objects, specs e arquivos de dados JSON |
+| `device-tests` | `browserstack-android` | Roda os testes em dispositivos reais via BrowserStack e publica o relatório Allure (opcional — habilitado quando há credenciais) |
+
+### Por que validação em vez de emulador no CI?
+
+Os testes mobile exigem um **emulador Android (com KVM)** ou **simulador iOS (macOS)**. Os **runners compartilhados do GitLab.com não suportam virtualização aninhada (KVM)**, então não conseguem subir o emulador.
+
+Por isso o pipeline executa um **stage de validação** (sempre verde), garantindo a integridade do código a cada push. A execução real dos 16 cenários acontece:
+
+- **Localmente**, em emulador Android: `npm run test:android`
+- **Na nuvem**, via BrowserStack: `npm run test:browserstack:android` (job `device-tests`)
+
+> Para rodar os testes de emulador no CI seria necessário um **runner self-hosted com KVM** habilitado.
 
 ### Variáveis de ambiente no GitLab
 
-Acesse `Settings → CI/CD → Variables` e adicione:
+Acesse `Settings → CI/CD → Variables` e adicione (para habilitar o job BrowserStack):
 
 | Variável | Descrição |
 |---|---|
 | `BROWSERSTACK_USER` | Usuário do BrowserStack |
 | `BROWSERSTACK_KEY` | Access Key do BrowserStack |
 
-### Espelhamento GitHub → GitLab
+### Hospedagem
 
-Para o pipeline GitLab rodar com o código hospedado no GitHub:
-
-1. Crie um projeto no GitLab.
-2. Acesse `Settings → Repository → Mirroring repositories`.
-3. Configure um **pull mirror** apontando para o repositório GitHub.
-4. O GitLab sincronizará automaticamente e disparará o pipeline a cada push.
+O código é mantido no **GitHub** (repositório principal) e enviado também ao **GitLab**, onde o pipeline CI/CD é executado a cada push.
 
 ---
 
