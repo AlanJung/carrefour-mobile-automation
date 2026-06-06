@@ -45,7 +45,7 @@ describe('Login', () => {
     it('[C03] Login com campos vazios exibe mensagem de validação', async () => {
         await loginPage.loginTab.click();
         await driver.pause(400);
-        await loginPage.click('~button-LOGIN');
+        await loginPage.clickLoginButton();
         await driver.pause(1000);
 
         const inlineErrorShown = await loginPage.isInlineErrorDisplayed();

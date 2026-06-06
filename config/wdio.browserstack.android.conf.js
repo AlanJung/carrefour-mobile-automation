@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { config: sharedConfig } = require('./wdio.shared.conf');
 const path = require('path');
 

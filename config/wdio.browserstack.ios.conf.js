@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { config: sharedConfig } = require('./wdio.shared.conf');
 
 const BS_USER = process.env.BROWSERSTACK_USER;

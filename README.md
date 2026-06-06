@@ -156,6 +156,7 @@ Carrefour-mobile-automation/
 ├── reports/screenshots/            # Screenshots capturadas em falhas
 ├── .allure-results/                # Dados brutos do Allure
 ├── allure-report/                  # Relatório HTML gerado
+├── .env.example                    # Template de variáveis (BrowserStack)
 ├── .gitlab-ci.yml
 ├── .gitignore
 ├── package.json
@@ -203,19 +204,27 @@ npm run test:android
 
 ### iOS (apenas macOS)
 
+> **Escopo:** os testes foram **executados e validados em Android** (emulador local + dispositivo real no BrowserStack). O iOS está **configurado e pronto**, mas não foi executado neste ambiente — veja a nota abaixo.
+
 ```bash
 npm run test:ios
 ```
 
+**Requisitos para rodar no iOS:**
+- **macOS + Xcode + Simulador iOS** (o iOS não roda no Windows — limitação da Apple)
+- O build de simulador do app: `ios.simulator.wdio.native.app.*.zip` (descompacte o `.app` em `apps/ios/`) — disponível nas [releases do native-demo-app](https://github.com/webdriverio/native-demo-app/releases)
+
+Os **Page Objects são cross-platform**: o native-demo-app usa os mesmos `accessibility id` no Android e no iOS, então os mesmos 16 cenários rodam no iOS com pouca ou nenhuma alteração — basta apontar o `app` no `wdio.ios.conf.js`.
+
 ### BrowserStack
 
 ```bash
+# Defina as credenciais (recomendado: arquivo .env — veja .env.example)
 export BROWSERSTACK_USER=seu_usuario
 export BROWSERSTACK_KEY=sua_access_key
 export BROWSERSTACK_APP_ID=bs://id_do_app_apos_upload
 
 npm run test:browserstack:android
-npm run test:browserstack:ios
 ```
 
 Para fazer o upload do APK ao BrowserStack:
@@ -225,6 +234,10 @@ curl -u "usuario:access_key" \
   -F "file=@apps/android/app-release.apk"
 # Guarde o "app_url" retornado como BROWSERSTACK_APP_ID
 ```
+
+> **iOS no BrowserStack:** o `wdio.browserstack.ios.conf.js` está pronto, mas o BrowserStack
+> usa dispositivos reais, que exigem um `.ipa` assinado. O native-demo-app publica apenas
+> um build de **simulador** (`.app`), então o iOS no BrowserStack requer um `.ipa` próprio.
 
 ---
 
@@ -247,14 +260,29 @@ Screenshots de falhas ficam salvas em `reports/screenshots/`.
 
 ---
 
-## BrowserStack (opcional)
+## BrowserStack
 
-A integração com BrowserStack permite execução em dispositivos reais.
+A integração com BrowserStack permite executar os testes em **dispositivos reais** na nuvem.
 
-1. Crie uma conta em [browserstack.com](https://www.browserstack.com).
-2. Obtenha suas credenciais em **Account → Settings → Access Keys**.
-3. Faça upload do APK conforme descrito acima.
-4. Configure as variáveis de ambiente e execute `npm run test:browserstack:android`.
+### Configuração
+
+1. Crie uma conta em [browserstack.com](https://www.browserstack.com) e acesse **App Automate**.
+2. Copie suas credenciais em **App Automate → Settings → Access Keys**.
+3. Copie o arquivo `.env.example` para `.env` e preencha `BROWSERSTACK_USER` e `BROWSERSTACK_KEY`.
+4. Faça o upload do APK (comando acima) e cole o `app_url` em `BROWSERSTACK_APP_ID` no `.env`.
+5. Execute: `npm run test:browserstack:android`
+
+> O arquivo `.env` **não é versionado** (está no `.gitignore`). As credenciais nunca vão para o repositório.
+
+### Resultado validado (Google Pixel 6 / Android 12)
+
+Os 16 cenários foram executados em dispositivo real no BrowserStack:
+
+- ✅ **15 cenários passando** (login, forms, navegação, swipe horizontal, drag & drop, webview)
+- ⏭️ **1 cenário pulado** — C10 (robô escondido): o reveal é um easter-egg de *parallax*
+  sensível à resolução, que dispara de forma confiável no emulador mas não no device real.
+  Por isso é **pulado automaticamente no BrowserStack** (com motivo documentado) e mantido
+  como assert firme no emulador.
 
 > Contas trial possuem limitação de minutos e dispositivos simultâneos.
 

@@ -47,25 +47,37 @@ class SwipePage extends BasePage {
         return src.includes(title);
     }
 
-    // Scroll vertical para baixo (dedo sobe) para revelar o robô escondido
-    async scrollDownToFindRobot(maxTries = 8) {
+    // Scroll vertical para baixo (dedo sobe) para revelar o robô escondido.
+    // O reveal é sensível ao gesto e varia conforme a resolução do device, por isso
+    // tentamos múltiplos perfis de swipe: faixa estreita central (funciona no
+    // emulador) e swipes mais longos/largos (para dispositivos reais).
+    async scrollDownToFindRobot(maxTries = 6) {
         const { width, height } = await driver.getWindowSize();
         const cx = Math.round(width * 0.5);
 
-        for (let i = 0; i < maxTries; i++) {
-            await driver.execute('mobile: swipeGesture', {
-                left:   cx - 80,
-                top:    Math.round(height * 0.55),
-                width:  160,
-                height: Math.round(height * 0.35),
-                direction: 'up', // dedo sobe = scroll down = revela conteúdo abaixo
-                percent: 0.95,
-            });
-            await driver.pause(400);
+        // Perfis de gesto, do mais específico (emulador) ao mais amplo (device real)
+        const profiles = [
+            { left: cx - 80,  top: 0.55, width: 160,                       height: 0.35, percent: 0.95 },
+            { left: cx - 150, top: 0.45, width: 300,                       height: 0.45, percent: 1.0  },
+            { left: Math.round(width * 0.15), top: 0.35, width: Math.round(width * 0.7), height: 0.50, percent: 1.0 },
+        ];
 
-            const src = await driver.getPageSource();
-            if (src.includes('You found me')) {
-                return true;
+        for (let round = 0; round < maxTries; round++) {
+            for (const p of profiles) {
+                await driver.execute('mobile: swipeGesture', {
+                    left:   p.left,
+                    top:    Math.round(height * p.top),
+                    width:  p.width,
+                    height: Math.round(height * p.height),
+                    direction: 'up', // dedo sobe = scroll down = revela conteúdo abaixo
+                    percent: p.percent,
+                });
+                await driver.pause(600);
+
+                const src = await driver.getPageSource();
+                if (src.includes('You found me')) {
+                    return true;
+                }
             }
         }
         return false;

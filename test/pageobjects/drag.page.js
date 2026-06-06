@@ -13,7 +13,17 @@ class DragPage extends BasePage {
         const target = await $(targetSelector);
         await source.waitForDisplayed({ timeout: 10000 });
         await target.waitForDisplayed({ timeout: 10000 });
-        await source.dragAndDrop(target);
+
+        // Usa o gesto nativo do UIAutomator2 — evita o W3C "DELETE /actions"
+        // (releaseActions) que o Appium do BrowserStack não suporta.
+        const tLoc  = await target.getLocation();
+        const tSize = await target.getSize();
+        await driver.execute('mobile: dragGesture', {
+            elementId: source.elementId,
+            endX: Math.round(tLoc.x + tSize.width / 2),
+            endY: Math.round(tLoc.y + tSize.height / 2),
+            speed: 2500,
+        });
         await driver.pause(500);
     }
 

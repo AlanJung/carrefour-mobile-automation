@@ -26,11 +26,25 @@ class LoginPage extends BasePage {
     async login(email, password) {
         await this.loginTab.click();
         await driver.pause(400);
-        if (email) await this.setValue('~input-email', email);
-        if (password) await this.setValue('~input-password', password);
-        await this.hideKeyboard();
-        await this.click('~button-LOGIN');
+        // Preenche e esconde o teclado entre os campos — no device real o teclado
+        // cobre o campo seguinte, deixando-o "não exibido".
+        if (email) {
+            await this.setValue('~input-email', email);
+            await this.hideKeyboard();
+        }
+        if (password) {
+            await this.setValue('~input-password', password);
+            await this.hideKeyboard();
+        }
+        await this.clickLoginButton();
         await driver.pause(1500);
+    }
+
+    // Clica no botão LOGIN garantindo que está visível (pode estar abaixo da dobra)
+    async clickLoginButton() {
+        const loginBtn = await $('~button-LOGIN');
+        await loginBtn.scrollIntoView().catch(() => {});
+        await this.click('~button-LOGIN');
     }
 
     // Verifica mensagem de erro inline (validação de formulário)

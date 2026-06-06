@@ -11,7 +11,10 @@ class BasePage {
     }
 
     async setValue(selector, value) {
-        const el = await this.waitForElement(selector);
+        const el = await $(selector);
+        // Rola o elemento até a visão (no device real pode estar abaixo da dobra)
+        await el.scrollIntoView().catch(() => {});
+        await el.waitForDisplayed({ timeout: 15000 });
         await el.clearValue();
         await el.setValue(value);
     }
@@ -31,10 +34,20 @@ class BasePage {
     }
 
     async hideKeyboard() {
+        // 1ª tentativa: comando padrão do Appium
         try {
             await driver.hideKeyboard();
         } catch {
-            // teclado já estava escondido
+            // ignora — pode não haver teclado ou o comando não ser suportado
+        }
+        // 2ª tentativa (fallback Android): tecla Back fecha o teclado de forma confiável
+        try {
+            if (await driver.isKeyboardShown()) {
+                await driver.pressKeyCode(4); // KEYCODE_BACK
+                await driver.pause(300);
+            }
+        } catch {
+            // isKeyboardShown/pressKeyCode pode não estar disponível — segue o fluxo
         }
     }
 
